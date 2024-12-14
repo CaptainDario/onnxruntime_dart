@@ -1,0 +1,3 @@
+[submodule "/Users/darioklepoch/dev/DaKanji/DaKanjiApplication/plugins/onnxruntime_dart/src"]
+	path = /Users/darioklepoch/dev/DaKanji/DaKanjiApplication/plugins/onnxruntime_dart/src
+	url = https://github.com/microsoft/onnxruntime
