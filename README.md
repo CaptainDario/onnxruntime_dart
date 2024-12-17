@@ -1,3 +1,9 @@
 # onnxruntime_dart
 
-Onnxruntime bindings for dart, run your favorite models on any platform!
+Thin bindings for the in dart, run your favorite models on any platform!
+
+Platform support
+
+| Android | iOS | Windows | MacOS | Linux | Web | Web --wasm |
+|:-------:|:---:|:-------:|:-----:|:-----:|:---:|:----------:|
+|    ✅    |  ✅  |    ✅    |   ✅   |   ✅   |  ✅  |      [❌](https://github.com/CaptainDario/onnxruntime_dart/issues/5)     |

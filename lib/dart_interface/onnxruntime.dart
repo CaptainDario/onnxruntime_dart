@@ -1,68 +1,43 @@
-import 'package:onnxruntime_dart/bindings/onnxruntime_dart_bindings_generated.dart';
-
-
-
 import 'dart:ffi';
+
 import 'package:ffi/ffi.dart';
 
-final DynamicLibrary onnxRuntime = DynamicLibrary.open('onnxruntime.dll'); // or .so on Linux/macOS
+import 'package:onnxruntime_dart/bindings/onnxruntime_dart_bindings_generated.dart';
+import 'package:onnxruntime_dart/dart_interface/onnxruntime_lib.dart';
+import 'package:universal_ffi/ffi_helper.dart';
 
-// Access the ONNX Runtime API base
-final _OrtGetApiBase = onnxRuntime
-    .lookupFunction<Pointer<Void> Function(), Pointer<Void> Function()>('OrtGetApiBase');
 
-final _GetApi = onnxRuntime
-    .lookupFunction<Pointer<Void> Function(Pointer<Void>, Int32), Pointer<Void> Function(Pointer<Void>, int)>('OrtGetApi');
 
-final _CreateEnv = onnxRuntime
-    .lookupFunction<Int32 Function(Int32, Pointer<Utf8>, Pointer<Pointer<Void>>), int Function(int, Pointer<Utf8>, Pointer<Pointer<Void>>)>('OrtCreateEnv');
+class Onnxruntime {
 
-final _CreateSessionOptions = onnxRuntime
-    .lookupFunction<Int32 Function(Pointer<Pointer<Void>>), int Function(Pointer<Pointer<Void>>)>('OrtCreateSessionOptions');
+  /// FFI loaded lybrary
+  late FfiHelper _onnxruntimeHelper;
 
-final _CreateSession = onnxRuntime
-    .lookupFunction<Int32 Function(Pointer<Void>, Pointer<Utf8>, Pointer<Void>, Pointer<Pointer<Void>>), int Function(Pointer<Void>, Pointer<Utf8>, Pointer<Void>, Pointer<Pointer<Void>>)>('OrtCreateSession');
+  late OnnxruntimeDartBindings _onnxruntimeDartBindings;
 
-// Dart wrappers for calling C API
-Pointer<Void> ortApiBase = _OrtGetApiBase();
-Pointer<Void> ortApi = _GetApi(ortApiBase, 1); // ORT_API_VERSION = 1
 
-Pointer<Void> createEnvironment(String name) {
-  final Pointer<Pointer<Void>> env = calloc();
-  final Pointer<Utf8> envName = name.toNativeUtf8();
-  final result = _CreateEnv(2 /* ORT_LOGGING_LEVEL_WARNING */, envName, env);
-  if (result != 0) throw Exception('Failed to create environment');
-  calloc.free(envName);
-  return env.value;
-}
+  Onnxruntime();
 
-Pointer<Void> createSessionOptions() {
-  final Pointer<Pointer<Void>> options = calloc();
-  final result = _CreateSessionOptions(options);
-  if (result != 0) throw Exception('Failed to create session options');
-  return options.value;
-}
+  /// Initializes this instance
+  /// 
+  /// Warning: this needs to be called before calling any other method!
+  Future init() async {
 
-Pointer<Void> createSession(Pointer<Void> env, String modelPath, Pointer<Void> options) {
-  final Pointer<Pointer<Void>> session = calloc();
-  final Pointer<Utf8> model = modelPath.toNativeUtf8();
-  final result = _CreateSession(env, model, options, session);
-  if (result != 0) throw Exception('Failed to create session');
-  calloc.free(model);
-  return session.value;
-}
+    _onnxruntimeHelper = await loadOnnxRuntimeDartLib();
 
-void main() {
-  // Create environment
-  final env = createEnvironment("test");
+    _onnxruntimeDartBindings = OnnxruntimeDartBindings(_onnxruntimeHelper.library as DynamicLibrary);
 
-  // Create session options
-  final sessionOptions = createSessionOptions();
+  }
 
-  // Load ONNX model
-  final session = createSession(env, "model.onnx", sessionOptions);
+  /// Get the ORT_RUNTIME_VERSION
+  String version(){
+    
+    final apiBase = _onnxruntimeDartBindings.OrtGetApiBase();
 
-  print('Session created successfully');
+    final version = apiBase.ref.GetVersionString
+      .asFunction<Pointer<Char> Function()>()();
 
-  // Free resources (use proper C API bindings to release them)
+    return version.cast<Utf8>().toDartString();
+  }
+
 }
