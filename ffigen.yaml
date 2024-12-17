@@ -8,12 +8,11 @@ output: 'lib/bindings/onnxruntime_dart_bindings_generated.dart'
 headers:
   entry-points:
     - 'src/include/onnxruntime/core/session/onnxruntime_c_api.h'
-    #- 'src/include/onnxruntime/core/session/onnxruntime_cxx_api.h'
-    - 'src/include/onnxruntime/core/session/onnxruntime_cxx_inline.h'
-  include-directives:
-    - 'src/include/onnxruntime/core/session/onnxruntime_c_api.h'
-    #- 'src/include/onnxruntime/core/session/onnxruntime_cxx_api.h'
-    - 'src/include/onnxruntime/core/session/onnxruntime_cxx_inline.h'
+    - 'src/include/onnxruntime/core/providers/provider_factory_creators.h'
+    - 'src/include/onnxruntime/core/session/onnxruntime_session_options_config_keys.h'
+    - 'src/include/onnxruntime/core/session/onnxruntime_run_options.h'
+    - 'src/include/onnxruntime/core/session/onnxruntime_provider_factory.h'
+    - 'src/include/onnxruntime/core/session/onnxruntime_training_c_api.h'
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
